@@ -19,11 +19,11 @@ package com.walking.intensive.chapter5.task19;
 public class Task19 {
     public static void main(String[] args) {
 //        Для собственных проверок можете делать любые изменения в этом методе
-        Point a = new Point(0,0,0);
-        Point b = new Point(10,8,10);
+        Point a = new Point(0, 0, 0);
+        Point b = new Point(10, 8, 10);
         Parallelepiped parallelepiped = new Parallelepiped(a, b);
 
-        Point center = new Point(10,0,-2);
+        Point center = new Point(10, 0, -2);
         Sphere sphere = new Sphere(center, 2);
 
         System.out.println(isIntersected(sphere, parallelepiped));
@@ -104,7 +104,7 @@ public class Task19 {
         return false;
     }
 
-    static double getDistance (Point a, Point b) {
+    static double getDistance(Point a, Point b) {
         // вычисление расстояния между двумя точками
         int x1 = a.getX();
         int x2 = b.getX();
@@ -113,13 +113,12 @@ public class Task19 {
         int z1 = a.getZ();
         int z2 = b.getZ();
 
-        return Math.sqrt(
-                Math.pow(x2 - x1, 2)
+        return Math.sqrt(Math.pow(x2 - x1, 2)
                 + Math.pow(y2 - y1, 2)
                 + Math.pow(z2 - z1, 2));
     }
 
-    static double getDistance (Point a, Point b, int axeToIgnore) {
+    static double getDistance(Point a, Point b, int axeToIgnore) {
         // метод вернет расстояние между двумя точками на плоскости, умножая на 0
         // третье измерение axeToIgnore
         int[] pointA = a.getCoordinatesArray();

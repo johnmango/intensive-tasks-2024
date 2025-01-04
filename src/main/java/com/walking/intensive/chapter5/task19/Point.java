@@ -25,6 +25,6 @@ public class Point {
 
     public int[] getCoordinatesArray() {
         // метод вернет массив из 3х int. Это координаты по оси X, Y и Z.
-        return new int[] {x, y, z};
+        return new int[]{x, y, z};
     }
 }
