@@ -20,10 +20,10 @@ public class Task19 {
     public static void main(String[] args) {
 //        Для собственных проверок можете делать любые изменения в этом методе
         Point a = new Point(0,0,0);
-        Point b = new Point(10,2,10);
+        Point b = new Point(10,8,10);
         Parallelepiped parallelepiped = new Parallelepiped(a, b);
 
-        Point center = new Point(5,4,-2);
+        Point center = new Point(10,0,-2);
         Sphere sphere = new Sphere(center, 2);
 
         System.out.println(isIntersected(sphere, parallelepiped));
@@ -42,42 +42,39 @@ public class Task19 {
         int sphereRadius = sphere.getRadius();
 
         // Случай 1. Центр сферы внутри параллелепипеда
-        boolean[] isCenterWithinLimits = isPointInsideSegment(
-                 parallelepiped.getA(), parallelepiped.getB(), sphereCenter);
-        int trues = getTrueCount(isCenterWithinLimits);
+        boolean[] isCenterWithinLimits = parallelepiped.isPointWithinProjection(sphereCenter);
+        int trues = getTruesCount(isCenterWithinLimits);
 
         if (trues == 3) {
             // центр сферы попадает в границы параллелепипеда по всем трем проекциям.
             // Значит центр сферы внутри параллелепипеда.
+            System.out.println("Центр внутри");
             return true;
         }
 
-        //Случай 2. Сфера цепляет одну из вершин параллелепипеда
+        // Случай 2. Сфера цепляет одну из вершин параллелепипеда
+        // сравниваем расстояние от центра до каждой вершины
         Point[] vertices = parallelepiped.getAllVertices();
         for (Point vertex : vertices) {
             if (getDistance(sphereCenter, vertex) <= sphereRadius) {
+                System.out.println("Вершина");
                 return true;
             }
-        }
-
-        if (trues == 0) {
-            // сфера не достает радиусом ни одну из вершин, и ее центр находится снаружи параллелепипеда
-            // во всех проекциях - пересечения не может быть
-            return false;
         }
 
         Point[] auxPoints = parallelepiped.getAuxiliaryPoints();
         if (trues == 1) {
             // Случай 3. Сфера цепляет одно из ребер параллелепипеда.
             // для этого нужно попадание центра сферы между двух точек параллелепипеда в одной проекции
-            // и рсстояние от центра сферы до ребра меньше радиуса. Расстояние от центра сферы до
+            // и расстояние от центра сферы до ребра меньше радиуса. Расстояние от центра сферы до
             // 4х ребер проверяется на плоскости.
 
-            for (int i = 0; i < 3; i++) {
-                if (isCenterWithinLimits[i]) {
+            for (int projection = 0; projection < 3; projection++) {
+                if (isCenterWithinLimits[projection]) {
                     // возможно пересечение ребра. проверим расстояние от центра сферы до aux points
                     for (Point auxPoint : auxPoints) {
-                        if (getDistance(auxPoint, sphereCenter, i) <= sphereRadius) {
+                        if (getDistance(auxPoint, sphereCenter, projection) <= sphereRadius) {
+                            System.out.println("Ребро");
                             return true;
                         }
                     }
@@ -87,14 +84,18 @@ public class Task19 {
             return false;
         }
 
-        // Случай 4. Сфера цепляет грань. trues=2. Найдем плоскость, в которой центр не лежит в границах
+        // Случай 4. Сфера цепляет грань. Найдем плоскость, в которой центр не лежит в границах
         // проекций параллелепипеда. Это та, где isCenterWithinLimits = false
-        for (int i = 0; i < 3; i++) {
-            if (!isCenterWithinLimits[i]) {
-                // нужно попадание любой точки параллелепипеда в пределы диаметра сферы по выбранной оси
-                for (Point auxPoint : auxPoints) {
-                    if (isWithinRadius(sphere, auxPoint, i)) {
-                        return true;
+        if (trues == 2) {
+            for (int projection = 0; projection < 3; projection++) {
+                if (!isCenterWithinLimits[projection]) {
+                    // нужно попадание любой точки параллелепипеда в пределы диаметра сферы
+                    // по выбранной оси
+                    for (Point auxPoint : auxPoints) {
+                        if (isWithinRadius(sphere, auxPoint, projection)) {
+                            System.out.println("Грань");
+                            return true;
+                        }
                     }
                 }
             }
@@ -119,9 +120,10 @@ public class Task19 {
     }
 
     static double getDistance (Point a, Point b, int axeToIgnore) {
-        //метод вернет расстояние между двумя точками на плоскости, умножая на 0 одно из измерений
-        int[] pointA = getCoordinatesArray(a);
-        int[] pointB = getCoordinatesArray(b);
+        // метод вернет расстояние между двумя точками на плоскости, умножая на 0
+        // третье измерение axeToIgnore
+        int[] pointA = a.getCoordinatesArray();
+        int[] pointB = b.getCoordinatesArray();
         int[] axeMultiplier = {1, 1, 1};
         axeMultiplier[axeToIgnore] = 0;
 
@@ -133,26 +135,7 @@ public class Task19 {
         return Math.sqrt(intermediateResult);
     }
 
-    static boolean[] isPointInsideSegment(Point segmentA, Point segmentB, Point point) {
-        // метод возвращает массив из 3х элементов: X, Y, Z. Если точка point попадает в проекцию segment
-        // по оси X, Y или Z, то элемент массива 0, 1 или 2 соответственно - будет true
-
-        boolean[] pointInsideSegment = new boolean[3];
-
-        if (point.getX() >= segmentA.getX() && point.getX() <= segmentB.getX()) {
-            pointInsideSegment[0] = true;
-        }
-        if (point.getY() >= segmentA.getY() && point.getY() <= segmentB.getY()) {
-            pointInsideSegment[1] = true;
-        }
-        if (point.getZ() >= segmentA.getZ() && point.getZ() <= segmentB.getZ()) {
-            pointInsideSegment[2] = true;
-        }
-
-        return pointInsideSegment;
-    }
-
-    static int getTrueCount(boolean[] booleans) {
+    static int getTruesCount(boolean[] booleans) {
         // метод возвращает количество true в массиве booleans
         int trueCount = 0;
         for (boolean bool : booleans) {
@@ -164,17 +147,13 @@ public class Task19 {
         return trueCount;
     }
 
-    static int[] getCoordinatesArray(Point point) {
-        return new int[] {point.getX(), point.getY(), point.getZ()};
-    }
-
     static boolean isWithinRadius(Sphere sphere, Point point, int axeToCheck) {
-        //метод вернет true, осли координата находится в пределах диаметра
-        // (проекции сферы на любую плоскость)
+        // метод вернет true, если координата точки по указанной оси находится в пределах
+        // диаметра сферы по этой же оси.
 
         int radius = sphere.getRadius();
-        int[] centerCoordinate = getCoordinatesArray(sphere.getCenter());
-        int[] pointCoordinate = getCoordinatesArray(point);
+        int[] centerCoordinate = sphere.getCenter().getCoordinatesArray();
+        int[] pointCoordinate = point.getCoordinatesArray();
 
         return pointCoordinate[axeToCheck] >= centerCoordinate[axeToCheck] - radius &&
                 pointCoordinate[axeToCheck] <= centerCoordinate[axeToCheck] + radius;

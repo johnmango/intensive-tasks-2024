@@ -44,6 +44,7 @@ public class Parallelepiped {
 
     public Point[] getAuxiliaryPoints() {
         // метод вернет 4 точки. Первые 3 это концы ребер, выходящих из точки А. 4я точка - это точка B
+        // Через эти точки можно провести 4 ребра на все проекции.
         Point[] auxPoints = new Point[4];
         auxPoints[0] = new Point(b.getX(), a.getY(), a.getZ());
         auxPoints[1] = new Point(a.getX(), b.getY(), a.getZ());
@@ -51,5 +52,25 @@ public class Parallelepiped {
         auxPoints[3] = b;
 
         return auxPoints;
+    }
+
+    public boolean[] isPointWithinProjection(Point point) {
+        // метод возвращает массив boolean из 3х элементов: X, Y, Z.
+        // Если точка point попадает в проекцию параллелепипеда по оси X, Y или Z,
+        // то элемент массива 0, 1 или 2 соответственно - будет true
+
+        boolean[] pointWithinProjection = new boolean[3];
+
+        if (point.getX() >= a.getX() && point.getX() <= b.getX()) {
+            pointWithinProjection[0] = true;
+        }
+        if (point.getY() >= a.getY() && point.getY() <= b.getY()) {
+            pointWithinProjection[1] = true;
+        }
+        if (point.getZ() >= a.getZ() && point.getZ() <= b.getZ()) {
+            pointWithinProjection[2] = true;
+        }
+
+        return pointWithinProjection;
     }
 }
