@@ -1,5 +1,6 @@
 package com.walking.intensive.chapter5.task20;
 
+
 /**
  * Создайте метод, возвращающий определитель матрицы (R) ранга N и дополнительный метод валидации,
  * который будет определять, что матрица является квадратной и у нее может быть рассчитан определитель.
@@ -25,6 +26,19 @@ package com.walking.intensive.chapter5.task20;
 public class Task20 {
     public static void main(String[] args) {
 //        Для собственных проверок можете делать любые изменения в этом методе
+        int[][] matrix = {{3, 2, 4},
+                         {2, 2, 1, 5},
+                         {0, 2, 3}};
+        int[][] matrix2 =   {{3, 2, 4, 8, 7},
+                            {1, 4, 3, 7, 9},
+                            {6, 2, 1, 5, 5},
+                            {0, 4, 2, 1, 3},
+                            {6, 4, 2, 8, 9}};
+        Integer determinant = getDeterminant(matrix);
+        Integer determinant2 = getDeterminant(matrix2);
+        System.out.println(determinant);
+        System.out.println(determinant2);
+
     }
 
     /**
@@ -41,7 +55,25 @@ public class Task20 {
      */
     static Integer getDeterminant(int[][] matrix) {
         // Ваш код
-        return null;
+        if (!isValid(matrix)) {
+            return null;
+        }
+
+        int length = matrix.length;
+        if (length == 2) {
+            return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+        }
+
+        int determinant = 0;
+        int sign = 1;
+
+        for (int i = 0; i < length; i++) {
+            int[][] smallerMatrix = getSmallerMatrix(matrix, i);
+            determinant += sign * matrix[0][i] * getDeterminant(smallerMatrix);
+            sign *= -1;
+        }
+
+        return determinant;
     }
 
     /**
@@ -53,6 +85,31 @@ public class Task20 {
      * getDeterminant() должен использовать isValid().
      */
     static boolean isValid(int[][] matrix) {
-        return false;
+        if (matrix == null || matrix.length < 2) {
+            return false;
+        }
+
+        int length = matrix.length;
+        for (int[] line : matrix) {
+            if (line.length != length) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static int[][] getSmallerMatrix(int [][] matrix, int columnToIgnore) {
+        int length = matrix.length;
+        int[][] smallerMatrix = new int[length - 1][length - 1];
+
+        for (int y = 1; y < length; y++) {
+            for (int x = 0; x < length - 1; x++) {
+                int correctedX = x >= columnToIgnore ? x + 1 : x;
+                smallerMatrix[y - 1][x] = matrix[y][correctedX];
+            }
+        }
+
+        return smallerMatrix;
     }
 }
