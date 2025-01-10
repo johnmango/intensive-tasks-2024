@@ -39,42 +39,36 @@ public class Task19 {
  */
 
         Point sphereCenter = sphere.getCenter();
-        int sphereRadius = sphere.getRadius();
-
-        // Случай 1. Центр сферы внутри параллелепипеда
+//      Случай 1. Центр сферы внутри параллелепипеда
         boolean[] isCenterWithinLimits = parallelepiped.isPointWithinProjection(sphereCenter);
         int trues = getTruesCount(isCenterWithinLimits);
 
         if (trues == 3) {
-            // центр сферы попадает в границы параллелепипеда по всем трем проекциям.
-            // Значит центр сферы внутри параллелепипеда.
-            System.out.println("Центр внутри");
+//          центр сферы попадает в границы параллелепипеда по всем трем проекциям.
+//          Значит центр сферы внутри параллелепипеда.
             return true;
         }
 
-        // Случай 2. Сфера цепляет одну из вершин параллелепипеда
-        // сравниваем расстояние от центра до каждой вершины
+        int sphereRadius = sphere.getRadius();
+//      Случай 2. Сфера цепляет одну из вершин параллелепипеда
+//      сравниваем расстояние от центра до каждой вершины
         Point[] vertices = parallelepiped.getAllVertices();
         for (Point vertex : vertices) {
             if (getDistance(sphereCenter, vertex) <= sphereRadius) {
-                System.out.println("Вершина");
                 return true;
             }
         }
 
-        Point[] auxPoints = parallelepiped.getAuxiliaryPoints();
+//      Случай 3. Сфера цепляет одно из ребер параллелепипеда.
+//      для этого нужно попадание центра сферы между двух точек параллелепипеда в одной проекции
+//      и расстояние от центра сферы до любого ребра меньше радиуса.
         if (trues == 1) {
-            // Случай 3. Сфера цепляет одно из ребер параллелепипеда.
-            // для этого нужно попадание центра сферы между двух точек параллелепипеда в одной проекции
-            // и расстояние от центра сферы до ребра меньше радиуса. Расстояние от центра сферы до
-            // 4х ребер проверяется на плоскости.
-
+            Point[] auxPoints = parallelepiped.getAuxiliaryPoints();
             for (int projection = 0; projection < 3; projection++) {
                 if (isCenterWithinLimits[projection]) {
-                    // возможно пересечение ребра. проверим расстояние от центра сферы до aux points
+//                  возможно пересечение ребра. проверим расстояние от центра сферы до aux points
                     for (Point auxPoint : auxPoints) {
                         if (getDistance(auxPoint, sphereCenter, projection) <= sphereRadius) {
-                            System.out.println("Ребро");
                             return true;
                         }
                     }
@@ -84,16 +78,16 @@ public class Task19 {
             return false;
         }
 
-        // Случай 4. Сфера цепляет грань. Найдем плоскость, в которой центр не лежит в границах
-        // проекций параллелепипеда. Это та, где isCenterWithinLimits = false
+//      Случай 4. Сфера цепляет грань. Найдем плоскость, в которой центр не лежит в границах
+//      проекций параллелепипеда. Это та, где isCenterWithinLimits = false
         if (trues == 2) {
+            Point[] auxPoints = parallelepiped.getAuxiliaryPoints();
             for (int projection = 0; projection < 3; projection++) {
                 if (!isCenterWithinLimits[projection]) {
-                    // нужно попадание любой точки параллелепипеда в пределы диаметра сферы
-                    // по выбранной оси
+//                  нужно попадание любой точки параллелепипеда в пределы диаметра сферы
+//                  по выбранной оси
                     for (Point auxPoint : auxPoints) {
                         if (isWithinRadius(sphere, auxPoint, projection)) {
-                            System.out.println("Грань");
                             return true;
                         }
                     }
@@ -102,10 +96,14 @@ public class Task19 {
         }
 
         return false;
+//        случай 3 и 4 можно объединить в один код, добавляя if (т.к.циклы очень похожи),
+//        но тогда читаемость кода будет хуже
     }
 
+    /**
+     * вычисление расстояния между двумя точками
+     */
     static double getDistance(Point a, Point b) {
-        // вычисление расстояния между двумя точками
         int x1 = a.getX();
         int x2 = b.getX();
         int y1 = a.getY();
@@ -113,14 +111,14 @@ public class Task19 {
         int z1 = a.getZ();
         int z2 = b.getZ();
 
-        return Math.sqrt(Math.pow(x2 - x1, 2)
-                + Math.pow(y2 - y1, 2)
-                + Math.pow(z2 - z1, 2));
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2));
     }
 
+    /**
+     * метод вернет расстояние между двумя точками на плоскости, умножая на 0
+     * третье измерение axeToIgnore
+     */
     static double getDistance(Point a, Point b, int axeToIgnore) {
-        // метод вернет расстояние между двумя точками на плоскости, умножая на 0
-        // третье измерение axeToIgnore
         int[] pointA = a.getCoordinatesArray();
         int[] pointB = b.getCoordinatesArray();
         int[] axeMultiplier = {1, 1, 1};
@@ -134,8 +132,10 @@ public class Task19 {
         return Math.sqrt(intermediateResult);
     }
 
+    /**
+     * метод возвращает количество true в массиве booleans
+     */
     static int getTruesCount(boolean[] booleans) {
-        // метод возвращает количество true в массиве booleans
         int trueCount = 0;
         for (boolean bool : booleans) {
             if (bool) {
@@ -146,9 +146,11 @@ public class Task19 {
         return trueCount;
     }
 
+    /**
+     * метод вернет true, если координата точки по указанной оси находится в пределах
+     * диаметра сферы по этой же оси.
+     */
     static boolean isWithinRadius(Sphere sphere, Point point, int axeToCheck) {
-        // метод вернет true, если координата точки по указанной оси находится в пределах
-        // диаметра сферы по этой же оси.
 
         int radius = sphere.getRadius();
         int[] centerCoordinate = sphere.getCenter().getCoordinatesArray();

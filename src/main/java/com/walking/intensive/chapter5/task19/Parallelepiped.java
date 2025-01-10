@@ -10,16 +10,10 @@ public class Parallelepiped {
         this.b = b;
     }
 
-    public Point getA() {
-        return a;
-    }
-
-    public Point getB() {
-        return b;
-    }
-
+    /**
+     * метод возвращает все вершины параллелепипеда
+     */
     public Point[] getAllVertices() {
-        //метод возвращает все вершины параллелепипеда
         int aX = a.getX();
         int bX = b.getX();
 
@@ -42,9 +36,11 @@ public class Parallelepiped {
         return vertices;
     }
 
+    /**
+     * метод вернет 4 точки. Первые 3 это концы ребер, выходящих из точки А. 4я точка - это точка B
+     * Через эти точки можно провести 4 ребра на все проекции.
+     */
     public Point[] getAuxiliaryPoints() {
-        // метод вернет 4 точки. Первые 3 это концы ребер, выходящих из точки А. 4я точка - это точка B
-        // Через эти точки можно провести 4 ребра на все проекции.
         Point[] auxPoints = new Point[4];
         auxPoints[0] = new Point(b.getX(), a.getY(), a.getZ());
         auxPoints[1] = new Point(a.getX(), b.getY(), a.getZ());
@@ -54,11 +50,12 @@ public class Parallelepiped {
         return auxPoints;
     }
 
+    /**
+     * метод возвращает массив boolean из 3х элементов: X, Y, Z.
+     * Если точка point попадает в проекцию параллелепипеда по оси X, Y или Z,
+     * то элемент массива 0, 1 или 2 соответственно - будет true
+     */
     public boolean[] isPointWithinProjection(Point point) {
-        // метод возвращает массив boolean из 3х элементов: X, Y, Z.
-        // Если точка point попадает в проекцию параллелепипеда по оси X, Y или Z,
-        // то элемент массива 0, 1 или 2 соответственно - будет true
-
         boolean[] pointWithinProjection = new boolean[3];
 
         if (point.getX() >= a.getX() && point.getX() <= b.getX()) {
