@@ -23,7 +23,7 @@ public class Task19 {
         Point b = new Point(10, 8, 10);
         Parallelepiped parallelepiped = new Parallelepiped(a, b);
 
-        Point center = new Point(10, 0, -2);
+        Point center = new Point(5, -1, 5);
         Sphere sphere = new Sphere(center, 2);
 
         System.out.println(isIntersected(sphere, parallelepiped));
@@ -50,27 +50,22 @@ public class Task19 {
         }
 
         int sphereRadius = sphere.getRadius();
+        Point nearestVertex = parallelepiped.getNearestVertex(sphereCenter);
 //      Случай 2. Сфера цепляет одну из вершин параллелепипеда
-//      сравниваем расстояние от центра до каждой вершины
-        Point[] vertices = parallelepiped.getAllVertices();
-        for (Point vertex : vertices) {
-            if (getDistance(sphereCenter, vertex) <= sphereRadius) {
-                return true;
-            }
+//      сравниваем расстояние от центра до ближайшей вершины
+        if (getDistance(sphereCenter, nearestVertex) <= sphereRadius) {
+            return true;
         }
 
 //      Случай 3. Сфера цепляет одно из ребер параллелепипеда.
 //      для этого нужно попадание центра сферы между двух точек параллелепипеда в одной проекции
-//      и расстояние от центра сферы до любого ребра меньше радиуса.
+//      и расстояние от центра сферы до ближайшего ребра меньше радиуса.
         if (trues == 1) {
-            Point[] auxPoints = parallelepiped.getAuxiliaryPoints();
             for (int projection = 0; projection < 3; projection++) {
                 if (isCenterWithinLimits[projection]) {
-//                  возможно пересечение ребра. проверим расстояние от центра сферы до aux points
-                    for (Point auxPoint : auxPoints) {
-                        if (getDistance(auxPoint, sphereCenter, projection) <= sphereRadius) {
-                            return true;
-                        }
+//                  возможно пересечение ребра. проверим расстояние от центра сферы до ближайшей вершины
+                    if (getDistance(sphereCenter, nearestVertex, projection) <= sphereRadius) {
+                        return true;
                     }
                 }
             }
@@ -81,15 +76,12 @@ public class Task19 {
 //      Случай 4. Сфера цепляет грань. Найдем плоскость, в которой центр не лежит в границах
 //      проекций параллелепипеда. Это та, где isCenterWithinLimits = false
         if (trues == 2) {
-            Point[] auxPoints = parallelepiped.getAuxiliaryPoints();
             for (int projection = 0; projection < 3; projection++) {
                 if (!isCenterWithinLimits[projection]) {
-//                  нужно попадание любой точки параллелепипеда в пределы диаметра сферы
+//                  нужно попадание ближайшей точки параллелепипеда в пределы диаметра сферы
 //                  по выбранной оси
-                    for (Point auxPoint : auxPoints) {
-                        if (isWithinRadius(sphere, auxPoint, projection)) {
-                            return true;
-                        }
+                    if (isWithinRadius(sphere, nearestVertex, projection)) {
+                        return true;
                     }
                 }
             }
@@ -151,7 +143,6 @@ public class Task19 {
      * диаметра сферы по этой же оси.
      */
     static boolean isWithinRadius(Sphere sphere, Point point, int axeToCheck) {
-
         int radius = sphere.getRadius();
         int[] centerCoordinate = sphere.getCenter().getCoordinatesArray();
         int[] pointCoordinate = point.getCoordinatesArray();

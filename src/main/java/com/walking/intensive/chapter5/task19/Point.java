@@ -29,4 +29,8 @@ public class Point {
     public int[] getCoordinatesArray() {
         return new int[]{x, y, z};
     }
+
+    public String toString() {
+        return x + "; " + y + "; " + z + ";";
+    }
 }
