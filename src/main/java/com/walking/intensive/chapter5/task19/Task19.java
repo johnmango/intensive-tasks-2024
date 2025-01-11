@@ -23,7 +23,7 @@ public class Task19 {
         Point b = new Point(10, 8, 10);
         Parallelepiped parallelepiped = new Parallelepiped(a, b);
 
-        Point center = new Point(5, -1, 5);
+        Point center = new Point(11, -2, 0);
         Sphere sphere = new Sphere(center, 2);
 
         System.out.println(isIntersected(sphere, parallelepiped));
@@ -39,31 +39,32 @@ public class Task19 {
  */
 
         Point sphereCenter = sphere.getCenter();
-//      Случай 1. Центр сферы внутри параллелепипеда
         boolean[] isCenterWithinLimits = parallelepiped.isPointWithinProjection(sphereCenter);
         int trues = getTruesCount(isCenterWithinLimits);
 
+//        Случай 1. Центр сферы внутри параллелепипеда (попадает в границы параллелепипеда
+//        по всем трем проекциям).
         if (trues == 3) {
-//          центр сферы попадает в границы параллелепипеда по всем трем проекциям.
-//          Значит центр сферы внутри параллелепипеда.
             return true;
         }
 
         int sphereRadius = sphere.getRadius();
         Point nearestVertex = parallelepiped.getNearestVertex(sphereCenter);
-//      Случай 2. Сфера цепляет одну из вершин параллелепипеда
-//      сравниваем расстояние от центра до ближайшей вершины
-        if (getDistance(sphereCenter, nearestVertex) <= sphereRadius) {
+
+//        Случай 2. Сфера цепляет одну из вершин параллелепипеда
+//        сравниваем расстояние от центра до ближайшей вершины
+        if (getDistance(sphereCenter, nearestVertex, -1) <= sphereRadius) {
             return true;
         }
 
-//      Случай 3. Сфера цепляет одно из ребер параллелепипеда.
-//      для этого нужно попадание центра сферы между двух точек параллелепипеда в одной проекции
-//      и расстояние от центра сферы до ближайшего ребра меньше радиуса.
+//        Случай 3. Сфера цепляет одно из ребер параллелепипеда.
+//        для этого нужно попадание центра сферы между двух точек параллелепипеда в одной проекции
+//        и расстояние от центра сферы до ближайшего ребра меньше радиуса.
         if (trues == 1) {
             for (int projection = 0; projection < 3; projection++) {
                 if (isCenterWithinLimits[projection]) {
-//                  возможно пересечение ребра. проверим расстояние от центра сферы до ближайшей вершины
+//                    возможно пересечение ребра. проверим расстояние от центра сферы до ближайшей вершины
+//                    на плоскости, перпендикулярной текущей оси (=расстояние до ближайшего ребра)
                     if (getDistance(sphereCenter, nearestVertex, projection) <= sphereRadius) {
                         return true;
                     }
@@ -73,13 +74,12 @@ public class Task19 {
             return false;
         }
 
-//      Случай 4. Сфера цепляет грань. Найдем плоскость, в которой центр не лежит в границах
-//      проекций параллелепипеда. Это та, где isCenterWithinLimits = false
+//        Случай 4. Сфера цепляет грань. Найдем ось, на которой центр не лежит в границах
+//        проекций параллелепипеда. Это та, где isCenterWithinLimits = false
         if (trues == 2) {
             for (int projection = 0; projection < 3; projection++) {
                 if (!isCenterWithinLimits[projection]) {
-//                  нужно попадание ближайшей точки параллелепипеда в пределы диаметра сферы
-//                  по выбранной оси
+//                    нужно попадание ближайшей точки параллелепипеда в пределы диаметра сферы по выбранной оси
                     if (isWithinRadius(sphere, nearestVertex, projection)) {
                         return true;
                     }
@@ -93,28 +93,17 @@ public class Task19 {
     }
 
     /**
-     * вычисление расстояния между двумя точками
-     */
-    static double getDistance(Point a, Point b) {
-        int x1 = a.getX();
-        int x2 = b.getX();
-        int y1 = a.getY();
-        int y2 = b.getY();
-        int z1 = a.getZ();
-        int z2 = b.getZ();
-
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) + Math.pow(z2 - z1, 2));
-    }
-
-    /**
-     * метод вернет расстояние между двумя точками на плоскости, умножая на 0
-     * третье измерение axeToIgnore
+     * метод вернет расстояние между двумя точками в пространстве, если axeToIgnore != 0, 1 или 2.
+     * Если axeToIgnore = 0, 1 или 2, то соответствующая координата будет умножена на 0, и метод
+     * вернет расстояние между двумя проекциями точек на плоскость, перпендикулярную axeToIgnore
      */
     static double getDistance(Point a, Point b, int axeToIgnore) {
         int[] pointA = a.getCoordinatesArray();
         int[] pointB = b.getCoordinatesArray();
         int[] axeMultiplier = {1, 1, 1};
-        axeMultiplier[axeToIgnore] = 0;
+        if (axeToIgnore >= 0 && axeToIgnore <= 3) {
+            axeMultiplier[axeToIgnore] = 0;
+        }
 
         double intermediateResult = 0;
         for (int i = 0; i < 3; i++) {
