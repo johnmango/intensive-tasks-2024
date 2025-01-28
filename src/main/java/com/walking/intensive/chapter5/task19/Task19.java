@@ -20,10 +20,10 @@ public class Task19 {
     public static void main(String[] args) {
 //        Для собственных проверок можете делать любые изменения в этом методе
         Point a = new Point(0, 0, 0);
-        Point b = new Point(10, 8, 10);
+        Point b = new Point(-10, -10, -10);
         Parallelepiped parallelepiped = new Parallelepiped(a, b);
 
-        Point center = new Point(11, -2, 0);
+        Point center = new Point(-11, 1, -5);
         Sphere sphere = new Sphere(center, 2);
 
         System.out.println(isIntersected(sphere, parallelepiped));

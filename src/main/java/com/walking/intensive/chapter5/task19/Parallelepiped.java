@@ -18,13 +18,21 @@ public class Parallelepiped {
     public boolean[] isPointWithinProjection(Point point) {
         boolean[] pointWithinProjection = new boolean[3];
 
-        if (point.getX() >= a.getX() && point.getX() <= b.getX()) {
+        int xMin = Math.min(a.getX(), b.getX());
+        int xMax = Math.max(a.getX(), b.getX());
+        if (point.getX() >= xMin && point.getX() <= xMax) {
             pointWithinProjection[0] = true;
         }
-        if (point.getY() >= a.getY() && point.getY() <= b.getY()) {
+
+        int yMin = Math.min(a.getY(), b.getY());
+        int yMax = Math.max(a.getY(), b.getY());
+        if (point.getY() >= yMin && point.getY() <= yMax) {
             pointWithinProjection[1] = true;
         }
-        if (point.getZ() >= a.getZ() && point.getZ() <= b.getZ()) {
+
+        int zMin = Math.min(a.getZ(), b.getZ());
+        int zMax = Math.max(a.getZ(), b.getZ());
+        if (point.getZ() >= zMin && point.getZ() <= zMax) {
             pointWithinProjection[2] = true;
         }
 
